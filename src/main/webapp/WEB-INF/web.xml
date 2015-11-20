@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<web-app>
+    <display-name>Pitch Restful Web Application</display-name>
+
+    <servlet>
+        <servlet-name>test-serlvet</servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.rest.MyResource
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>test-serlvet</servlet-name>
+        <url-pattern>/test</url-pattern>
+    </servlet-mapping>
+
+</web-app>
