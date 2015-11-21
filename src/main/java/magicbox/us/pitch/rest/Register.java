@@ -13,22 +13,54 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.*;
 
 import java.util.logging.Logger;
 
 public class Register extends HttpServlet {
 
     private final String DB_URL = "jdbc:postgresql://pitch.cof6tchaa9lf.us-east-1.rds.amazonaws.com:5432/pitch";
+
     
 
     private final static Logger LOGGER = Logger.getLogger(Register.class.getName());
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.getWriter().write("<html><body>Register...GET Request?</body></html>");
+
+//        response.getWriter().write("<html><body>Register...GET Request?</body></html>");
+
+        PreparedStatement preparedStatement = null;
+        Connection conn = null;
+        ResultSet resultSet = null;
+
+        String sql = "SELECT * FROM pitch_user where name=? and password=?";
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            preparedStatement = conn.prepareStatement(sql);
+
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            System.out.println(preparedStatement);
+
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                response.setStatus(response.SC_OK);
+                response.getWriter().println("FOUND");
+            }
+            else {
+                response.sendError(response.SC_NOT_FOUND, "user does not exist.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -45,7 +77,8 @@ public class Register extends HttpServlet {
         }
 
         JSONObject jsonObject = null;
-        Statement stmt = null;
+//        Statement stmt = null;
+        PreparedStatement preparedStatement = null;
         Connection conn = null;
 
         try {
@@ -59,12 +92,21 @@ public class Register extends HttpServlet {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
-            stmt = conn.createStatement();
+//            stmt = conn.createStatement();
 
-            String sql = "insert into pitch_user (name, password) values ('"+
-                    user.getName() +"', '" + user.getPassword() +"')";
+//            String sql = "insert into pitch_user (name, password) values ('"+
+//                    user.getName() +"', '" + user.getPassword() +"')";
+            String sql = "INSERT INTO pitch_user (name, password, email, headline, pictureurl, pitchable) values (?, ?, ?, ?, ?, ?)";
 
-            stmt.executeUpdate(sql);
+            preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, user.getHeadline());
+            preparedStatement.setString(5, user.getPictureUrl());
+            preparedStatement.setBoolean(6, user.isPitchable());
+
+            preparedStatement.executeUpdate(sql);
 
         } catch (JSONException e) {
             LOGGER.info("JSON parse error");
