@@ -4,16 +4,15 @@
     <display-name>Pitch Restful Web Application</display-name>
 
     <servlet>
-        <servlet-name>test-serlvet</servlet-name>
+        <servlet-name>register</servlet-name>
         <servlet-class>
-            magicbox.us.pitch.rest.MyResource
+            magicbox.us.pitch.rest.Register
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>test-serlvet</servlet-name>
-        <url-pattern>/test</url-pattern>
+        <servlet-name>register</servlet-name>
+        <url-pattern>/register</url-pattern>
     </servlet-mapping>
-
 </web-app>
