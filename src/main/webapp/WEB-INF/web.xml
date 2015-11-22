@@ -10,9 +10,20 @@
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>register</servlet-name>
         <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>pitch</servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.rest.Pitch
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>pitch</servlet-name>
+        <url-pattern>/pitch</url-pattern>
     </servlet-mapping>
 </web-app>

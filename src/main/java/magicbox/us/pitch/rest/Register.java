@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,18 +18,15 @@ import java.sql.*;
 
 import java.util.logging.Logger;
 
-public class Register extends HttpServlet {
-
-    private final String DB_URL = "jdbc:postgresql://pitch.cof6tchaa9lf.us-east-1.rds.amazonaws.com:5432/pitch";
-
-    
+public class Register extends HttpServlet
+    implements DbConfig {
 
     private final static Logger LOGGER = Logger.getLogger(Register.class.getName());
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-//        response.getWriter().write("<html><body>Register...GET Request?</body></html>");
+        HttpSession session = request.getSession(true);
 
         PreparedStatement preparedStatement = null;
         Connection conn = null;
@@ -52,6 +50,9 @@ public class Register extends HttpServlet {
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
+                int uid = resultSet.getInt("uid");
+                session.setAttribute("uid", uid);
+
                 response.setStatus(response.SC_OK);
                 response.getWriter().println("FOUND");
             }
@@ -77,7 +78,6 @@ public class Register extends HttpServlet {
         }
 
         JSONObject jsonObject = null;
-//        Statement stmt = null;
         PreparedStatement preparedStatement = null;
         Connection conn = null;
 
