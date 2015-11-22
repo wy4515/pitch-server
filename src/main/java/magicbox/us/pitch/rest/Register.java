@@ -49,16 +49,21 @@ public class Register extends HttpServlet
 
             resultSet = preparedStatement.executeQuery();
 
+            JSONObject jsonObject = new JSONObject();
+            response.setContentType("application/json");
+
             if (resultSet.next()) {
                 int uid = resultSet.getInt("uid");
                 session.setAttribute("uid", uid);
 
-                response.setStatus(response.SC_OK);
-                response.getWriter().println("FOUND");
+                jsonObject.put("Success", "True");
             }
             else {
-                response.sendError(response.SC_NOT_FOUND, "user does not exist.");
+                jsonObject.put("Success", "False");
             }
+            PrintWriter out = response.getWriter();
+            out.print(jsonObject);
+            out.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,6 +85,9 @@ public class Register extends HttpServlet
         JSONObject jsonObject = null;
         PreparedStatement preparedStatement = null;
         Connection conn = null;
+
+        JSONObject respnoseJsonObject = new JSONObject();
+        response.setContentType("application/json");
 
         try {
             jsonObject = new JSONObject(sb.toString());
@@ -108,15 +116,23 @@ public class Register extends HttpServlet
 
             preparedStatement.executeUpdate(sql);
 
+            respnoseJsonObject.put("Success", "True");
         } catch (JSONException e) {
             LOGGER.info("JSON parse error");
+            respnoseJsonObject.put("Success", "False");
             // crash and burn
             throw new IOException("Error parsing JSON request string");
         } catch (Exception e) {
+            respnoseJsonObject.put("Success", "False");
+
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
             LOGGER.info(errors.toString());
             e.printStackTrace();
         }
+
+        PrintWriter out = response.getWriter();
+        out.print(respnoseJsonObject);
+        out.flush();
     }
 }

@@ -28,7 +28,7 @@ public class Pitch extends HttpServlet
             throws ServletException, IOException {
         HttpSession session = request.getSession();
 
-        // if uid=-1 should consider as error
+        // uid=-1 should consider as error
         int uid = -1;
         try {
             uid = (Integer)session.getAttribute("uid");
@@ -98,6 +98,9 @@ public class Pitch extends HttpServlet
         PreparedStatement preparedStatement = null;
         Connection conn = null;
 
+        JSONObject respnoseJsonObject = new JSONObject();
+        response.setContentType("application/json");
+
         try {
             int uid = (Integer) session.getAttribute("uid");
 
@@ -129,15 +132,23 @@ public class Pitch extends HttpServlet
 
             preparedStatement.executeUpdate(sql);
 
+            respnoseJsonObject.put("Success", "True");
         } catch (JSONException e) {
+            respnoseJsonObject.put("Success", "False");
+
             LOGGER.info("JSON parse error");
             // crash and burn
             throw new IOException("Error parsing JSON request string");
         } catch (Exception e) {
+            respnoseJsonObject.put("Success", "False");
+
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
             LOGGER.info(errors.toString());
             e.printStackTrace();
         }
+        PrintWriter out = response.getWriter();
+        out.print(respnoseJsonObject);
+        out.flush();
     }
 }
