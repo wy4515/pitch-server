@@ -2,19 +2,25 @@ package magicbox.us.pitch.model;
 
 import java.sql.Timestamp;
 
+import javax.servlet.http.Part;
+
 public class PitchEntity {
     private String title,
         description,
         videourl;
+    private Part video;
     private Timestamp date;
-    private int uid;
+    private String email;
 
-    PitchEntity(String title, String description, String videourl, Timestamp date, int uid) {
+    PitchEntity(String title, String description, Part video, Timestamp date, String email) {
         this.title = title;
         this.description = description;
-        this.videourl = videourl;
+        this.video = video;
         this.date = date;
-        this.uid = uid;
+        this.email = email;
+    }
+    public Object getVideo() {
+        return this.video;
     }
 
     public String getTitle() {
@@ -33,7 +39,7 @@ public class PitchEntity {
         return date;
     }
 
-    public int getUid() {
-        return uid;
+    public String getEmail() {
+        return email;
     }
 }

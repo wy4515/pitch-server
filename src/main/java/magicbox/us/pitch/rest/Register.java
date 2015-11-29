@@ -26,23 +26,21 @@ public class Register extends HttpServlet
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(true);
-
         PreparedStatement preparedStatement = null;
         Connection conn = null;
         ResultSet resultSet = null;
 
-        String sql = "SELECT * FROM pitch_user where name=? and password=?";
+        String sql = "SELECT * FROM pitch_user where email=? and password=?";
 
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
             preparedStatement = conn.prepareStatement(sql);
 
-            String username = request.getParameter("username");
+            String email = request.getParameter("email");
             String password = request.getParameter("password");
 
-            preparedStatement.setString(1, username);
+            preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
 
             System.out.println(preparedStatement);
@@ -54,7 +52,6 @@ public class Register extends HttpServlet
 
             if (resultSet.next()) {
                 int uid = resultSet.getInt("uid");
-                session.setAttribute("uid", uid);
 
                 jsonObject.put("Success", "True");
             }
@@ -93,8 +90,9 @@ public class Register extends HttpServlet
             jsonObject = new JSONObject(sb.toString());
 
             User user = new UserBuilder()
-                    .name(jsonObject.getString("name"))
+                    .email(jsonObject.getString("email"))
                     .password(jsonObject.getString("password"))
+                    .skills(jsonObject.getString("skills"))
                     .buildUser();
 
             Class.forName("org.postgresql.Driver");
@@ -104,7 +102,7 @@ public class Register extends HttpServlet
 
 //            String sql = "insert into pitch_user (name, password) values ('"+
 //                    user.getName() +"', '" + user.getPassword() +"')";
-            String sql = "INSERT INTO pitch_user (name, password, email, headline, pictureurl, pitchable) values (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO pitch_user (name, password, email, headline, pictureurl, pitchable, skills) values (?, ?, ?, ?, ?, ?, ?)";
 
             preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, user.getName());
@@ -113,8 +111,9 @@ public class Register extends HttpServlet
             preparedStatement.setString(4, user.getHeadline());
             preparedStatement.setString(5, user.getPictureUrl());
             preparedStatement.setBoolean(6, user.isPitchable());
+            preparedStatement.setString(7, user.getSkills());
 
-            preparedStatement.executeUpdate(sql);
+            preparedStatement.executeUpdate();
 
             respnoseJsonObject.put("Success", "True");
         } catch (JSONException e) {

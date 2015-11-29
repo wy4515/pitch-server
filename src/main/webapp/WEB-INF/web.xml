@@ -26,4 +26,28 @@
         <servlet-name>pitch</servlet-name>
         <url-pattern>/pitch</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>like</servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.rest.Like
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>like</servlet-name>
+        <url-pattern>/like</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>comment</servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.rest.Comment
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>comment</servlet-name>
+        <url-pattern>/comment</url-pattern>
+    </servlet-mapping>
 </web-app>

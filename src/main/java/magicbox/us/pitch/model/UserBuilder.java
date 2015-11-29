@@ -7,11 +7,12 @@ public class UserBuilder {
     private String headline = "";
     private String url = "";
     private boolean pitchable = true;
+    private String skills = "";
 
     public UserBuilder(){}
 
     public User buildUser() {
-        return new User(name, password, email, headline, url, pitchable);
+        return new User(name, password, email, headline, url, pitchable, skills);
     }
 
     public UserBuilder name(String _name) {
@@ -41,6 +42,11 @@ public class UserBuilder {
 
     public UserBuilder pitchable(boolean _pitchable) {
         this.pitchable = _pitchable;
+        return this;
+    }
+
+    public UserBuilder skills(String _skills) {
+        this.skills = _skills;
         return this;
     }
 }

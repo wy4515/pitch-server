@@ -7,14 +7,20 @@ public class User {
     private String headline;
     private String pictureUrl;
     private boolean pitchable;
+    private String skills;
 
-    User(String name, String pwd, String email, String headline, String url, boolean pitchale) {
+    User(String name, String pwd, String email, String headline, String url, boolean pitchale, String skills) {
         this.name = name;
         this.password = pwd;
         this.email = email;
         this.headline = headline;
         this.pictureUrl = url;
         this.pitchable = pitchale;
+        this.skills = skills;
+    }
+
+    public String getSkills() {
+        return skills;
     }
 
     public String getName() {

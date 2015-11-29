@@ -1,5 +1,6 @@
 package magicbox.us.pitch.model;
 
+import javax.servlet.http.Part;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
@@ -7,8 +8,9 @@ public class PitchBuilder {
     private String title,
             description,
             videourl;
+    private Part video;
     private Timestamp date;
-    private int uid;
+    private String email;
 
     public PitchBuilder() {
         title = "";
@@ -19,11 +21,11 @@ public class PitchBuilder {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        uid = 0;
+        email = "";
     }
 
     public PitchEntity buildPitch() {
-        PitchEntity p = new PitchEntity(title, description, videourl, date, uid);
+        PitchEntity p = new PitchEntity(title, description, video, date, email);
         return p;
     }
 
@@ -42,13 +44,18 @@ public class PitchBuilder {
         return this;
     }
 
+    public PitchBuilder video(Part _video) {
+        this.video = _video;
+        return this;
+    }
+
     public PitchBuilder date(Timestamp _date) {
         this.date = _date;
         return this;
     }
 
-    public PitchBuilder uid(int _uid) {
-        this.uid = _uid;
+    public PitchBuilder email(String _email) {
+        this.email = _email;
         return this;
     }
 }

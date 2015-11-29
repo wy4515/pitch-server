@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -19,6 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
+/**
+ * To schedule a pitch
+ */
 public class Pitch extends HttpServlet
         implements DbConfig {
 
@@ -84,17 +86,18 @@ public class Pitch extends HttpServlet
 
         HttpSession session = request.getSession();
 
-        StringBuffer sb = new StringBuffer();
-        String line = null;
-        try {
-            BufferedReader reader = request.getReader();
-            while ((line = reader.readLine()) != null)
-                sb.append(line);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        StringBuffer sb = new StringBuffer();
+//        String line = null;
+//        try {
+//            BufferedReader reader = request.getReader();
+//            while ((line = reader.readLine()) != null)
+//                sb.append(line);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        JSONObject jsonObject = null;
 
-        JSONObject jsonObject = null;
         PreparedStatement preparedStatement = null;
         Connection conn = null;
 
@@ -102,35 +105,53 @@ public class Pitch extends HttpServlet
         response.setContentType("application/json");
 
         try {
-            int uid = (Integer) session.getAttribute("uid");
+//            int uid = (Integer) session.getAttribute("uid");
 
-            jsonObject = new JSONObject(sb.toString());
+//            jsonObject = new JSONObject(sb.toString());
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date parsedDate = dateFormat.parse(jsonObject.getString("date"));
+//            Date parsedDate = dateFormat.parse(jsonObject.getString("date"));
+            System.out.println(request.getParameter("date"));
+            Date parsedDate = dateFormat.parse(request.getParameter("date"));
             Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
 
+
+
+//            PitchEntity pitch = new PitchBuilder()
+//                    .title(jsonObject.getString("title"))
+//                    .description(jsonObject.getString("description"))
+//                    .videourl(jsonObject.getString("video"))
+//                    .date(timestamp)
+//                    .uid(uid)
+//                    .buildPitch();
             PitchEntity pitch = new PitchBuilder()
-                    .title(jsonObject.getString("title"))
-                    .description(jsonObject.getString("description"))
-                    .videourl(jsonObject.getString("video"))
+                    .title(request.getParameter("title"))
+                    .description(request.getParameter("description"))
+                    .video(request.getPart("video"))
                     .date(timestamp)
-                    .uid(uid)
+                    .email(request.getParameter("email"))
                     .buildPitch();
 
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
-            String sql = "INSERT INTO pitch values (?, ?, ?, ?, ?, ?)";
+            String sql1 = "INSERT INTO pitch values (?, ?, ?, ?, ?, ?) RETURNING id";
 
-            preparedStatement = conn.prepareStatement(sql);
+            preparedStatement = conn.prepareStatement(sql1);
             preparedStatement.setString(1, pitch.getTitle());
             preparedStatement.setString(2, pitch.getDescription());
             preparedStatement.setString(3, pitch.getVideourl());
             preparedStatement.setTimestamp(4, pitch.getDate());
-            preparedStatement.setInt(5, pitch.getUid());
+            preparedStatement.setString(5, pitch.getEmail());
 
-            preparedStatement.executeUpdate(sql);
+            // init like-counts for a pitch
+            int pid = preparedStatement.executeUpdate();
+
+            String sql2 = "INSERT INTO pitch_like values (?, ?)";
+
+            preparedStatement = conn.prepareStatement(sql2);
+            preparedStatement.setInt(1, pid);
+            preparedStatement.setInt(2, 0);
 
             respnoseJsonObject.put("Success", "True");
         } catch (JSONException e) {
