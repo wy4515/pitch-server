@@ -93,9 +93,9 @@ public class Pitch extends HttpServlet
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
             System.out.println(request.getParameter("date"));
-            Date parsedDate = dateFormat.parse(request.getParameter("date"));
-            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-
+//            Date parsedDate = dateFormat.parse(request.getParameter("date"));
+//            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+            Timestamp timestamp = new java.sql.Timestamp(Long.parseLong(request.getParameter("date")));
 
             PitchEntity pitch = new PitchBuilder()
                     .title(request.getParameter("title"))

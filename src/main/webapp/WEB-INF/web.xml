@@ -50,4 +50,25 @@
         <servlet-name>comment</servlet-name>
         <url-pattern>/comment</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>
+            upload
+        </servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.test.DemoRequestUploadServlet
+        </servlet-class>
+        <init-param>
+            <param-name>
+                uploadDir
+            </param-name>
+            <param-value>
+                /www/upload
+            </param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>upload</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
 </web-app>
