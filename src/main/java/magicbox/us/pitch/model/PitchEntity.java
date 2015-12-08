@@ -11,13 +11,15 @@ public class PitchEntity {
     private Part video;
     private Timestamp date;
     private String email;
+    private String tag;
 
-    PitchEntity(String title, String description, Part video, Timestamp date, String email) {
+    PitchEntity(String title, String description, Part video, Timestamp date, String email, String tag) {
         this.title = title;
         this.description = description;
         this.video = video;
         this.date = date;
         this.email = email;
+        this.tag = tag;
     }
     public Object getVideo() {
         return this.video;
@@ -42,4 +44,6 @@ public class PitchEntity {
     public String getEmail() {
         return email;
     }
+
+    public String getTag() { return tag; }
 }

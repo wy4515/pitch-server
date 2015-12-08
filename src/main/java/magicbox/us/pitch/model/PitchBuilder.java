@@ -11,6 +11,7 @@ public class PitchBuilder {
     private Part video;
     private Timestamp date;
     private String email;
+    private String tag;
 
     public PitchBuilder() {
         title = "";
@@ -22,10 +23,11 @@ public class PitchBuilder {
             e.printStackTrace();
         }
         email = "";
+        tag = "";
     }
 
     public PitchEntity buildPitch() {
-        PitchEntity p = new PitchEntity(title, description, video, date, email);
+        PitchEntity p = new PitchEntity(title, description, video, date, email, tag);
         return p;
     }
 
@@ -56,6 +58,11 @@ public class PitchBuilder {
 
     public PitchBuilder email(String _email) {
         this.email = _email;
+        return this;
+    }
+
+    public PitchBuilder tag(String _tag) {
+        this.tag = _tag;
         return this;
     }
 }

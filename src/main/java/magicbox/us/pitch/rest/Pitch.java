@@ -84,20 +84,6 @@ public class Pitch extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-
-//        StringBuffer sb = new StringBuffer();
-//        String line = null;
-//        try {
-//            BufferedReader reader = request.getReader();
-//            while ((line = reader.readLine()) != null)
-//                sb.append(line);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        JSONObject jsonObject = null;
-
         PreparedStatement preparedStatement = null;
         Connection conn = null;
 
@@ -105,31 +91,19 @@ public class Pitch extends HttpServlet
         response.setContentType("application/json");
 
         try {
-//            int uid = (Integer) session.getAttribute("uid");
-
-//            jsonObject = new JSONObject(sb.toString());
-
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-//            Date parsedDate = dateFormat.parse(jsonObject.getString("date"));
             System.out.println(request.getParameter("date"));
             Date parsedDate = dateFormat.parse(request.getParameter("date"));
             Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
 
 
-
-//            PitchEntity pitch = new PitchBuilder()
-//                    .title(jsonObject.getString("title"))
-//                    .description(jsonObject.getString("description"))
-//                    .videourl(jsonObject.getString("video"))
-//                    .date(timestamp)
-//                    .uid(uid)
-//                    .buildPitch();
             PitchEntity pitch = new PitchBuilder()
                     .title(request.getParameter("title"))
                     .description(request.getParameter("description"))
                     .video(request.getPart("video"))
                     .date(timestamp)
                     .email(request.getParameter("email"))
+                    .tag(request.getParameter("tag"))
                     .buildPitch();
 
             Class.forName("org.postgresql.Driver");
