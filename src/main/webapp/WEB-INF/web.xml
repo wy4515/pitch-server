@@ -56,23 +56,26 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>
-            upload
-        </servlet-name>
+        <servlet-name>list</servlet-name>
         <servlet-class>
-            magicbox.us.pitch.test.DemoRequestUploadServlet
+            magicbox.us.pitch.rest.List
         </servlet-class>
-        <init-param>
-            <param-name>
-                uploadDir
-            </param-name>
-            <param-value>
-                /www/upload
-            </param-value>
-        </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>upload</servlet-name>
-        <url-pattern>/upload</url-pattern>
+        <servlet-name>list</servlet-name>
+        <url-pattern>/list</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>video</servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.rest.Video
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>video</servlet-name>
+        <url-pattern>/video</url-pattern>
     </servlet-mapping>
 </web-app>
