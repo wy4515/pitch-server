@@ -20,6 +20,10 @@
         <servlet-class>
             magicbox.us.pitch.rest.Pitch
         </servlet-class>
+        <init-param>
+            <param-name>uploadDir</param-name>
+            <param-value>/www/upload</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

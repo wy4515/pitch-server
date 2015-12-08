@@ -1,23 +1,24 @@
 package magicbox.us.pitch.rest;
 
 import com.google.gson.Gson;
+import com.oreilly.servlet.MultipartRequest;
 import magicbox.us.pitch.model.PitchBuilder;
 import magicbox.us.pitch.model.PitchEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -28,6 +29,18 @@ public class Pitch extends HttpServlet
         implements DbConfig {
 
     private final static Logger LOGGER = Logger.getLogger(Pitch.class.getName());
+
+    private String dirName;
+
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        // read the uploadDir from the servlet parameters
+        dirName = config.getInitParameter("uploadDir");
+        if (dirName == null) {
+            throw new ServletException("Please supply uploadDir parameter");
+        }
+        System.out.println("dir name: "+dirName);
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -111,41 +124,80 @@ public class Pitch extends HttpServlet
         response.setContentType("application/json");
 
         try {
+            MultipartRequest multi =
+                    new MultipartRequest(request, System.getProperty("user.dir")+dirName, 10*1024*1024); // 10MB
+
 //            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
 //            System.out.println(request.getParameter("date"));
 //            Date parsedDate = dateFormat.parse(request.getParameter("date"));
 //            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-            Timestamp timestamp = new java.sql.Timestamp(Long.parseLong(request.getParameter("date")));
+
+//            PitchEntity pitch = new PitchBuilder()
+//                    .title(request.getParameter("title"))
+//                    .description(request.getParameter("description"))
+//                    .video(request.getPart("video"))
+//                    .date(timestamp)
+//                    .email(request.getParameter("email"))
+//                    .tag(request.getParameter("tag"))
+//                    .buildPitch();
+
+            System.out.println(multi.getParameter("date"));
+            Long time = Long.parseLong(multi.getParameter("date"));
+            Timestamp timestamp = new java.sql.Timestamp(time);
+
+            Enumeration files = multi.getFileNames();
+            File f = null;
+            while (files.hasMoreElements()) {
+                String name = (String) files.nextElement();
+                f = multi.getFile(name);
+            }
 
             PitchEntity pitch = new PitchBuilder()
-                    .title(request.getParameter("title"))
-                    .description(request.getParameter("description"))
-                    .video(request.getPart("video"))
+                    .title(multi.getParameter("title"))
+                    .description(multi.getParameter("description"))
+//                    .video(request.getPart("video"))
                     .date(timestamp)
-                    .email(request.getParameter("email"))
-                    .tag(request.getParameter("tag"))
+                    .email(multi.getParameter("email"))
+                    .tag(multi.getParameter("tag"))
                     .buildPitch();
 
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
-            String sql1 = "INSERT INTO pitch values (?, ?, ?, ?, ?, ?) RETURNING id";
+            String sql1 = "INSERT INTO pitch (title, description, date, email, tags) values (?, ?, ?, ?, ?) RETURNING pid";
 
             preparedStatement = conn.prepareStatement(sql1);
             preparedStatement.setString(1, pitch.getTitle());
             preparedStatement.setString(2, pitch.getDescription());
-            preparedStatement.setString(3, pitch.getVideourl());
-            preparedStatement.setTimestamp(4, pitch.getDate());
-            preparedStatement.setString(5, pitch.getEmail());
+//            preparedStatement.setString(3, pitch.getVideourl());
+            preparedStatement.setTimestamp(3, pitch.getDate());
+            preparedStatement.setString(4, pitch.getEmail());
+            preparedStatement.setString(5, pitch.getTag());
+
+            preparedStatement.execute();
+            preparedStatement.getResultSet().next();
+            int pid = preparedStatement.getResultSet().getInt(1);
+            System.out.println(pid);
+
+            // insert video if exist
+            if (f!=null) {
+                System.out.println("File length: "+ f.length());
+                FileInputStream fis = new FileInputStream(f);
+                String sql = "UPDATE pitch SET video = (?) WHERE pid = ?";
+                preparedStatement = conn.prepareStatement(sql);
+                preparedStatement.setBinaryStream(1, fis, (int)f.length());
+                preparedStatement.setInt(2, pid);
+                preparedStatement.executeUpdate();
+            }
 
             // init like-counts for a pitch
-            int pid = preparedStatement.executeUpdate();
-
             String sql2 = "INSERT INTO pitch_like values (?, ?)";
 
             preparedStatement = conn.prepareStatement(sql2);
             preparedStatement.setInt(1, pid);
             preparedStatement.setInt(2, 0);
+
+            preparedStatement.executeUpdate();
 
             respnoseJsonObject.put("Success", "True");
         } catch (JSONException e) {

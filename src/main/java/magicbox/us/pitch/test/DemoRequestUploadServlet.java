@@ -75,16 +75,8 @@ public class DemoRequestUploadServlet extends HttpServlet implements DbConfig {
             MultipartRequest multi =
                     new MultipartRequest(request, System.getProperty("user.dir")+dirName, 10*1024*1024); // 10MB
 
-            out.println("Params:");
-            Enumeration params = multi.getParameterNames();
-//            while (params.hasMoreElements()) {
-//                String name = (String)params.nextElement();
-//                String value = multi.getParameter(name);
-//                out.println(name + " = " + value);
-//            }
-//            out.println();
-//
-//            out.println("Files:");
+
+
             Enumeration files = multi.getFileNames();
             while (files.hasMoreElements()) {
                 String name = (String)files.nextElement();
