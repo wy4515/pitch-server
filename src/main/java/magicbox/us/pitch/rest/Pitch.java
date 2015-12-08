@@ -1,5 +1,6 @@
 package magicbox.us.pitch.rest;
 
+import com.google.gson.Gson;
 import magicbox.us.pitch.model.PitchBuilder;
 import magicbox.us.pitch.model.PitchEntity;
 import org.json.JSONException;
@@ -15,7 +16,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -28,57 +31,74 @@ public class Pitch extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-
-        // uid=-1 should consider as error
-        int uid = -1;
-        try {
-            uid = (Integer)session.getAttribute("uid");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         PreparedStatement preparedStatement = null;
         Connection conn = null;
         ResultSet resultSet = null;
-
-        String sql = "SELECT * FROM pitch where uid=?";
-
+        PrintWriter out = response.getWriter();
         try {
+            String sql1 = "SELECT title, description, date, count FROM pitch, pitch_like WHERE pitch.pid=pitch_like.pid AND pitch.pid=?";
+
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
-            preparedStatement = conn.prepareStatement(sql);
-
-            preparedStatement.setInt(1, uid);
+            preparedStatement = conn.prepareStatement(sql1);
+            int pid = Integer.parseInt(request.getParameter("pid"));
+            System.out.println(pid);
+            preparedStatement.setInt(1, pid);
 
             System.out.println(preparedStatement);
 
             resultSet = preparedStatement.executeQuery();
-
+            System.out.println(resultSet.toString());
             JSONObject jsonObject = new JSONObject();
 
             while (resultSet.next()) {
                 JSONObject pitch = new JSONObject();
 
-                pitch.put("pid", resultSet.getInt(1));
-                pitch.put("tittle", resultSet.getString(2));
-                pitch.put("description", resultSet.getString(3));
-                pitch.put("video_url", resultSet.getString(4));
-                pitch.put("date", resultSet.getDate(5));
-                pitch.put("uid", resultSet.getInt(6));
+//                pitch.put("pid", resultSet.getInt(1));
+                pitch.put("tittle", resultSet.getString(1));
+                pitch.put("description", resultSet.getString(2));
+                pitch.put("date", resultSet.getDate(3));
+                pitch.put("likes", resultSet.getInt(4));
+
+                String sql2 = "SELECT * FROM pitch_comment WHERE pid=?";
+                Connection conn2 = DriverManager.getConnection(DB_URL, USER, PASS);
+                PreparedStatement preparedStatement2 = conn2.prepareStatement(sql2);
+                preparedStatement2.setInt(1, Integer.parseInt(request.getParameter("pid")));
+
+                System.out.println(preparedStatement2);
+
+                ResultSet commentSet = preparedStatement2.executeQuery();
+
+                class CommentEntity {
+                    String user;
+                    String comment;
+
+                    public void setUser(String s) {this.user = s;}
+                    public void setComment(String s){this.comment = s;}
+                }
+
+                List<CommentEntity> commentList = new ArrayList<CommentEntity>();
+                Gson gson = new Gson();
+                while (commentSet.next()) {
+                    CommentEntity c = new CommentEntity();
+                    c.setUser(commentSet.getString(2));
+                    c.setComment(commentSet.getString(3));
+
+                    commentList.add(c);
+                }
+                pitch.put("comments", gson.toJson(commentList.toArray()));
 
                 jsonObject.put("pitch", pitch);
+                out.print(jsonObject);
             }
-
-            response.setStatus(response.SC_OK);
-            response.setContentType("application/json");
-
-            PrintWriter out = response.getWriter();
-            out.print(jsonObject);
-            out.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        response.setStatus(response.SC_OK);
+        response.setContentType("application/json");
+        out.flush();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -91,8 +111,8 @@ public class Pitch extends HttpServlet
         response.setContentType("application/json");
 
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            System.out.println(request.getParameter("date"));
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+//            System.out.println(request.getParameter("date"));
 //            Date parsedDate = dateFormat.parse(request.getParameter("date"));
 //            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
             Timestamp timestamp = new java.sql.Timestamp(Long.parseLong(request.getParameter("date")));
