@@ -2,6 +2,8 @@ package magicbox.us.pitch.rest;
 
 import com.google.gson.Gson;
 import com.oreilly.servlet.MultipartRequest;
+import magicbox.us.pitch.database.DbConfig;
+import magicbox.us.pitch.database.S3Helper;
 import magicbox.us.pitch.model.PitchBuilder;
 import magicbox.us.pitch.model.PitchEntity;
 import org.json.JSONException;
@@ -12,7 +14,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -29,7 +30,7 @@ public class Pitch extends HttpServlet
         implements DbConfig {
 
     private final static Logger LOGGER = Logger.getLogger(Pitch.class.getName());
-
+    private S3Helper s3Helper = new S3Helper();
     private String dirName;
 
     public void init(ServletConfig config) throws ServletException {
@@ -68,7 +69,6 @@ public class Pitch extends HttpServlet
             while (resultSet.next()) {
                 JSONObject pitch = new JSONObject();
 
-//                pitch.put("pid", resultSet.getInt(1));
                 pitch.put("tittle", resultSet.getString(1));
                 pitch.put("description", resultSet.getString(2));
                 pitch.put("date", resultSet.getDate(3));
@@ -83,14 +83,6 @@ public class Pitch extends HttpServlet
 
                 ResultSet commentSet = preparedStatement2.executeQuery();
 
-                class CommentEntity {
-                    String user;
-                    String comment;
-
-                    public void setUser(String s) {this.user = s;}
-                    public void setComment(String s){this.comment = s;}
-                }
-
                 List<CommentEntity> commentList = new ArrayList<CommentEntity>();
                 Gson gson = new Gson();
                 while (commentSet.next()) {
@@ -100,7 +92,7 @@ public class Pitch extends HttpServlet
 
                     commentList.add(c);
                 }
-                pitch.put("comments", gson.toJson(commentList.toArray()));
+                pitch.put("comments", gson.toJson(commentList));
 
                 jsonObject.put("pitch", pitch);
                 out.print(jsonObject);
@@ -117,49 +109,61 @@ public class Pitch extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        StringBuffer sb = new StringBuffer();
+        String line = null;
+        try {
+            BufferedReader reader = request.getReader();
+            while ((line = reader.readLine()) != null)
+                sb.append(line);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         PreparedStatement preparedStatement = null;
         Connection conn = null;
 
+        JSONObject jsonObject = new JSONObject();
         JSONObject respnoseJsonObject = new JSONObject();
         response.setContentType("application/json");
 
         try {
+            jsonObject = new JSONObject(sb.toString());
+
+            System.out.println(System.getProperty("user.dir"));
             MultipartRequest multi =
                     new MultipartRequest(request, System.getProperty("user.dir")+dirName, 10*1024*1024); // 10MB
 
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-//            System.out.println(request.getParameter("date"));
-//            Date parsedDate = dateFormat.parse(request.getParameter("date"));
-//            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            System.out.println("datesssss "+jsonObject.getString("date"));
+            Date parsedDate = dateFormat.parse(jsonObject.getString("date"));
+            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
 
-//            PitchEntity pitch = new PitchBuilder()
-//                    .title(request.getParameter("title"))
-//                    .description(request.getParameter("description"))
-//                    .video(request.getPart("video"))
-//                    .date(timestamp)
-//                    .email(request.getParameter("email"))
-//                    .tag(request.getParameter("tag"))
-//                    .buildPitch();
+            PitchEntity pitch = new PitchBuilder()
+                    .title(jsonObject.getString("title"))
+                    .description(jsonObject.getString("description"))
+                    .date(timestamp)
+                    .email(jsonObject.getString("email"))
+                    .tag(jsonObject.getString("tag"))
+                    .buildPitch();
 
-            System.out.println(multi.getParameter("date"));
-            Long time = Long.parseLong(multi.getParameter("date"));
-            Timestamp timestamp = new java.sql.Timestamp(time);
+            System.out.println(timestamp);
 
             Enumeration files = multi.getFileNames();
             File f = null;
             while (files.hasMoreElements()) {
                 String name = (String) files.nextElement();
                 f = multi.getFile(name);
+                s3Helper.upload2S3(f);
             }
 
-            PitchEntity pitch = new PitchBuilder()
-                    .title(multi.getParameter("title"))
-                    .description(multi.getParameter("description"))
-//                    .video(request.getPart("video"))
-                    .date(timestamp)
-                    .email(multi.getParameter("email"))
-                    .tag(multi.getParameter("tag"))
-                    .buildPitch();
+//            PitchEntity pitch = new PitchBuilder()
+//                    .title(multi.getParameter("title"))
+//                    .description(multi.getParameter("description"))
+////                    .video(request.getPart("video"))
+//                    .date(timestamp)
+//                    .email(multi.getParameter("email"))
+//                    .tag(multi.getParameter("tag"))
+//                    .buildPitch();
 
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
@@ -180,15 +184,15 @@ public class Pitch extends HttpServlet
             System.out.println(pid);
 
             // insert video if exist
-            if (f!=null) {
-                System.out.println("File length: "+ f.length());
-                FileInputStream fis = new FileInputStream(f);
-                String sql = "UPDATE pitch SET video = (?) WHERE pid = ?";
-                preparedStatement = conn.prepareStatement(sql);
-                preparedStatement.setBinaryStream(1, fis, (int)f.length());
-                preparedStatement.setInt(2, pid);
-                preparedStatement.executeUpdate();
-            }
+//            if (f!=null) {
+//                System.out.println("File length: "+ f.length());
+//                FileInputStream fis = new FileInputStream(f);
+//                String sql = "UPDATE pitch SET video = (?) WHERE pid = ?";
+//                preparedStatement = conn.prepareStatement(sql);
+//                preparedStatement.setBinaryStream(1, fis, (int)f.length());
+//                preparedStatement.setInt(2, pid);
+//                preparedStatement.executeUpdate();
+//            }
 
             // init like-counts for a pitch
             String sql2 = "INSERT INTO pitch_like values (?, ?)";
@@ -199,15 +203,15 @@ public class Pitch extends HttpServlet
 
             preparedStatement.executeUpdate();
 
-            respnoseJsonObject.put("Success", "True");
+            respnoseJsonObject.put("success", "True");
         } catch (JSONException e) {
-            respnoseJsonObject.put("Success", "False");
+            respnoseJsonObject.put("success", "False");
 
             LOGGER.info("JSON parse error");
             // crash and burn
             throw new IOException("Error parsing JSON request string");
         } catch (Exception e) {
-            respnoseJsonObject.put("Success", "False");
+            respnoseJsonObject.put("success", "False");
 
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
@@ -218,4 +222,12 @@ public class Pitch extends HttpServlet
         out.print(respnoseJsonObject);
         out.flush();
     }
+}
+
+class CommentEntity {
+    String user;
+    String comment;
+
+    public void setUser(String s) {this.user = s;}
+    public void setComment(String s){this.comment = s;}
 }

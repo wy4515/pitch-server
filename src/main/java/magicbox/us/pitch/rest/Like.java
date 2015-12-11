@@ -1,5 +1,6 @@
 package magicbox.us.pitch.rest;
 
+import magicbox.us.pitch.database.DbConfig;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -43,15 +44,14 @@ public class Like extends HttpServlet
             response.setContentType("application/json");
 
             while (resultSet.next()) {
-                JSONObject like = new JSONObject();
 
-                like.put("pid", resultSet.getInt(1));
-                like.put("count", resultSet.getInt(2));
+                jsonObject.put("pid", resultSet.getInt(1));
+                jsonObject.put("count", resultSet.getInt(2));
 
-                jsonObject.put("pitch", like);
             }
+            jsonObject.put("success", true);
         } catch (Exception e) {
-            jsonObject.put("Success", false);
+            jsonObject.put("success", false);
             e.printStackTrace();
         }
         PrintWriter out = response.getWriter();
@@ -95,9 +95,9 @@ public class Like extends HttpServlet
 
             preparedStatement.executeUpdate();
 
-            respnoseJsonObject.put("Success", true);
+            respnoseJsonObject.put("success", true);
         } catch (Exception e) {
-            respnoseJsonObject.put("Success", false);
+            respnoseJsonObject.put("success", false);
             e.printStackTrace();
         }
 

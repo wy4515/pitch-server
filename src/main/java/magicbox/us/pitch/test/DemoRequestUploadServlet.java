@@ -13,7 +13,7 @@ import javax.servlet.http.*;
 import java.io.*;
 
 import com.oreilly.servlet.MultipartRequest;
-import magicbox.us.pitch.rest.DbConfig;
+import magicbox.us.pitch.database.DbConfig;
 import org.json.JSONObject;
 
 public class DemoRequestUploadServlet extends HttpServlet implements DbConfig {

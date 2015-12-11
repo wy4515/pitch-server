@@ -78,4 +78,16 @@
         <servlet-name>video</servlet-name>
         <url-pattern>/video</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>expert</servlet-name>
+        <servlet-class>
+            magicbox.us.pitch.rest.Expert
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>expert</servlet-name>
+        <url-pattern>/expert</url-pattern>
+    </servlet-mapping>
 </web-app>

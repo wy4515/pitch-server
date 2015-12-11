@@ -1,5 +1,6 @@
 package magicbox.us.pitch.rest;
 
+import magicbox.us.pitch.database.DbConfig;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -35,9 +36,9 @@ public class Video extends HttpServlet
                 byte[] imgBytes = rs.getBytes(1);
                 respnoseJsonObject.put("Data", new String(imgBytes, "UTF-8"));
             }
-            respnoseJsonObject.put("Success", true);
+            respnoseJsonObject.put("success", true);
         } catch (Exception e) {
-            respnoseJsonObject.put("Success", false);
+            respnoseJsonObject.put("success", false);
             e.printStackTrace();
         }
         out.print(respnoseJsonObject);

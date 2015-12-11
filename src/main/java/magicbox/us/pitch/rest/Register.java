@@ -1,15 +1,18 @@
 package magicbox.us.pitch.rest;
 
+import magicbox.us.pitch.database.DbAdapter;
+import magicbox.us.pitch.database.DbConfig;
+import magicbox.us.pitch.exception.ExceptionLog;
 import magicbox.us.pitch.model.User;
 import magicbox.us.pitch.model.UserBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,6 +25,19 @@ public class Register extends HttpServlet
     implements DbConfig {
 
     private final static Logger LOGGER = Logger.getLogger(Register.class.getName());
+    private ExceptionLog exceptionLog = new ExceptionLog();
+    private DbAdapter dbAdapter = null;
+
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        // read the uploadDir from the servlet parameters
+        try {
+            dbAdapter = new DbAdapter();
+        } catch (Exception e) {
+            e.printStackTrace();
+            exceptionLog.log(e.getMessage());
+        }
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -34,7 +50,9 @@ public class Register extends HttpServlet
 
         try {
             Class.forName("org.postgresql.Driver");
-            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            // TODO: check if this replacement work
+//            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            conn = dbAdapter.getDbConnection();
             preparedStatement = conn.prepareStatement(sql);
 
             String email = request.getParameter("email");
@@ -53,10 +71,10 @@ public class Register extends HttpServlet
             if (resultSet.next()) {
                 int uid = resultSet.getInt("uid");
 
-                jsonObject.put("Success", "True");
+                jsonObject.put("success", true);
             }
             else {
-                jsonObject.put("Success", "False");
+                jsonObject.put("success", false);
             }
             PrintWriter out = response.getWriter();
             out.print(jsonObject);
@@ -98,10 +116,6 @@ public class Register extends HttpServlet
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
-//            stmt = conn.createStatement();
-
-//            String sql = "insert into pitch_user (name, password) values ('"+
-//                    user.getName() +"', '" + user.getPassword() +"')";
             String sql = "INSERT INTO pitch_user (name, password, email, headline, pictureurl, pitchable, skills) values (?, ?, ?, ?, ?, ?, ?)";
 
             preparedStatement = conn.prepareStatement(sql);
@@ -115,14 +129,14 @@ public class Register extends HttpServlet
 
             preparedStatement.executeUpdate();
 
-            respnoseJsonObject.put("Success", "True");
+            respnoseJsonObject.put("success", true);
         } catch (JSONException e) {
             LOGGER.info("JSON parse error");
-            respnoseJsonObject.put("Success", "False");
+            respnoseJsonObject.put("success", false);
             // crash and burn
             throw new IOException("Error parsing JSON request string");
         } catch (Exception e) {
-            respnoseJsonObject.put("Success", "False");
+            respnoseJsonObject.put("success", false);
 
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
