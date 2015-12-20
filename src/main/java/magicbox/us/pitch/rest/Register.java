@@ -1,3 +1,7 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.rest;
 
 import magicbox.us.pitch.database.DbAdapter;
@@ -21,13 +25,21 @@ import java.sql.*;
 
 import java.util.logging.Logger;
 
-public class Register extends HttpServlet
+/**
+ * handle both validation check and new user register
+ */
+public class Register extends AbstractServlet
     implements DbConfig {
 
     private final static Logger LOGGER = Logger.getLogger(Register.class.getName());
     private ExceptionLog exceptionLog = new ExceptionLog();
     private DbAdapter dbAdapter = null;
 
+    /**
+     * get setting configure from web.xml
+     * @param config
+     * @throws ServletException
+     */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         // read the uploadDir from the servlet parameters
@@ -39,6 +51,14 @@ public class Register extends HttpServlet
         }
     }
 
+    /**
+     * user email-password validation
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -84,6 +104,14 @@ public class Register extends HttpServlet
         }
     }
 
+    /**
+     * new user register
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 

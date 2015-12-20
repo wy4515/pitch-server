@@ -1,3 +1,7 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.rest;
 
 import com.google.gson.Gson;
@@ -26,7 +30,7 @@ import java.util.logging.Logger;
 /**
  * To schedule a pitch
  */
-public class Pitch extends HttpServlet
+public class Pitch extends AbstractServlet
         implements DbConfig {
 
     private final static Logger LOGGER = Logger.getLogger(Pitch.class.getName());
@@ -42,7 +46,7 @@ public class Pitch extends HttpServlet
         }
         System.out.println("dir name: "+dirName);
     }
-
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -105,7 +109,7 @@ public class Pitch extends HttpServlet
         response.setContentType("application/json");
         out.flush();
     }
-
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 

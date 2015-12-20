@@ -1,10 +1,13 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.rest;
 
 import magicbox.us.pitch.database.DbConfig;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -15,9 +18,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class Like extends HttpServlet
+/**
+ * Like api for servlet
+ * increase like count by one if success
+ */
+public class Like extends AbstractServlet
         implements DbConfig {
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -27,7 +35,7 @@ public class Like extends HttpServlet
 
         String sql = "SELECT * FROM pitch_like where pid=?";
 
-        JSONObject jsonObject = new JSONObject();;
+        JSONObject jsonObject = new JSONObject();
         try {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
@@ -59,6 +67,7 @@ public class Like extends HttpServlet
         out.flush();
     }
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 

@@ -8,5 +8,5 @@ public interface DbConfig {
 
     // TODO: remove this from git
     static final String USER = "root";
-    static final String PASS = "12345678";
+    static final String PASS = System.getenv().get("dbkey");
 }

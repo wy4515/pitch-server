@@ -1,3 +1,7 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.util;
 
 import com.google.gson.Gson;
@@ -9,6 +13,10 @@ import magicbox.us.pitch.exception.ExceptionLog;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * generic class to help JSON object parse
+ * @param <T>
+ */
 public class JsonHelper<T> {
     ExceptionLog logger = new ExceptionLog();
 

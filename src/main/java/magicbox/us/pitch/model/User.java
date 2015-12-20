@@ -1,5 +1,12 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.model;
 
+/**
+ * Map with User schema in database
+ */
 public class User {
     private String name;
     private String password;

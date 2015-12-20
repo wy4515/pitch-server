@@ -1,5 +1,12 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.model;
 
+/**
+ * User model builder
+ */
 public class UserBuilder {
     private String name = "";
     private String password = "";
@@ -11,7 +18,9 @@ public class UserBuilder {
 
     public UserBuilder(){}
 
-    public User buildUser() {
+    public User buildUser() throws Exception {
+        if (name=="" || password=="" || email=="" || skills=="")
+            throw new Exception();
         return new User(name, password, email, headline, url, pitchable, skills);
     }
 
@@ -25,8 +34,10 @@ public class UserBuilder {
         return this;
     }
 
-    public UserBuilder email(String _email) {
+    public UserBuilder email(String _email) throws Exception{
         this.email = _email;
+        if (!email.contains("@"))
+            throw new Exception();
         return this;
     }
 

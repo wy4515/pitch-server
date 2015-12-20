@@ -1,3 +1,7 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.rest;
 
 import com.google.gson.Gson;
@@ -7,7 +11,6 @@ import magicbox.us.pitch.database.DbConfig;
 import magicbox.us.pitch.util.JsonHelper;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -18,7 +21,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-public class List extends HttpServlet
+/**
+ * List api to provide meta information about a user
+ */
+public class List extends AbstractServlet
         implements DbConfig {
 
     JsonHelper<Meta> jsonHelper = new JsonHelper();
@@ -61,6 +67,7 @@ public class List extends HttpServlet
         }
     }
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -127,5 +134,12 @@ public class List extends HttpServlet
 
         response.setContentType("application/json");
         out.flush();
+    }
+
+    @Override
+    @Deprecated
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 }

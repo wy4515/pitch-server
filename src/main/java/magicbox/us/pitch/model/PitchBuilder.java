@@ -1,10 +1,15 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.model;
 
-import javax.servlet.http.Part;
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
+/**
+ * Pitch model builder
+ */
 public class PitchBuilder {
     private String title,
             description,
@@ -27,7 +32,9 @@ public class PitchBuilder {
         tag = "";
     }
 
-    public PitchEntity buildPitch() {
+    public PitchEntity buildPitch() throws Exception {
+        if (email=="" || tag=="" || title=="")
+            throw new Exception();
         PitchEntity p = new PitchEntity(title, description, date, email, tag);
         return p;
     }
@@ -42,8 +49,10 @@ public class PitchBuilder {
         return this;
     }
 
-    public PitchBuilder videourl(String _videourl) {
+    public PitchBuilder videourl(String _videourl) throws Exception {
         this.videourl = _videourl;
+        if (!videourl.contains("/"))
+            throw new Exception();
         return this;
     }
 
@@ -57,8 +66,10 @@ public class PitchBuilder {
         return this;
     }
 
-    public PitchBuilder email(String _email) {
+    public PitchBuilder email(String _email) throws Exception {
         this.email = _email;
+        if (!email.contains("@"))
+            throw new Exception();
         return this;
     }
 

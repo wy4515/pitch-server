@@ -1,3 +1,7 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.database;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
@@ -9,7 +13,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Take care of connection and upload with S3 file system
+ */
 public class S3Helper {
+    /**
+     * Upload file to S3 file system.
+     * set up bucket and password from system environment.
+     * @param file the file for upload
+     */
     public void upload2S3(File file) {
         String existingBucketName  = "s3://magicbox.pitch/";
         String keyName             = System.getenv().get("s3key");

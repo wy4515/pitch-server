@@ -4,7 +4,6 @@ import magicbox.us.pitch.database.DbConfig;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -14,17 +13,27 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class Video extends HttpServlet
+/**
+ * Fetch video by pitch_id
+ */
+public class Video extends AbstractServlet
         implements DbConfig {
 
+    /**
+     * Get request for video with pitch id
+     * @param  pid query keyword
+     * @param  respnoseJsonObject response in JSON format
+     *                            success=true/false
+     */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Connection conn = null;
         JSONObject respnoseJsonObject = new JSONObject();
         PrintWriter out = response.getWriter();
-
+        int pid = -1;
         try {
-            int pid = Integer.parseInt(request.getParameter("pid"));
+            pid = Integer.parseInt(request.getParameter("pid"));
 
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
@@ -43,5 +52,12 @@ public class Video extends HttpServlet
         }
         out.print(respnoseJsonObject);
         out.flush();
+    }
+
+    @Override
+    @Deprecated
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 }

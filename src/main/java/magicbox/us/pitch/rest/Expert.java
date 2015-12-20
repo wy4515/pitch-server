@@ -1,3 +1,7 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.rest;
 
 import com.google.gson.Gson;
@@ -6,7 +10,6 @@ import com.google.gson.JsonObject;
 import magicbox.us.pitch.database.DbConfig;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,9 +19,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class Expert extends HttpServlet
+/**
+ * Get a list of experts {email, skills} and send to system for recommendation and matching
+ */
+public class Expert extends AbstractServlet
         implements DbConfig {
-
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -59,8 +65,16 @@ public class Expert extends HttpServlet
         response.setContentType("application/json");
         out.flush();
     }
-}
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+}
+/**
+ * Parser helper class
+ */
 class EmailSkill {
     String email;
     String skill;

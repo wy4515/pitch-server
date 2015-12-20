@@ -1,10 +1,14 @@
+/**
+ * 18641 Java Smartphone
+ * Pitch App
+ */
 package magicbox.us.pitch.model;
 
-import java.io.File;
 import java.sql.Timestamp;
 
-import javax.servlet.http.Part;
-
+/**
+ * Map with Pitch schema in databsae
+ */
 public class PitchEntity {
     private String title,
         description,
